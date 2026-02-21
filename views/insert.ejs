@@ -1,35 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <%- include('partials/baseHead', {basePath, title: 'Insert' , js: ['insert.js']}); %>
+    <%- include('partials/baseHead', {basePath, title: 'Insert Row', js: ['insert.js']}); %>
   </head>
   <body>
-    <div class="page_body">
-      <div class="sidebar">
-        <h1
-          style="text-align: center; color: white"
-          class="form-label fs-4 text"
-        >
-          SQLite GUI
-        </h1>
-        <div
-          style="
-            height: 10vh;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          "
-        >
-          <a href="<%= basePath %>/home" class="btn btn-primary">Go back to homepage</a>
-        </div>
-      </div>
-      <div class="right_side">
-        <div class="main_body">
-          <div class="main_body_header">
-            <h1 class="body_title">Insert new row :</h1>
+    <div class="app-layout">
+      <!-- Mobile overlay -->
+      <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+      <!-- Sidebar -->
+      <aside id="sidebar" class="sidebar">
+        <div class="sidebar-inner">
+          <div class="sidebar-brand">
+            <div style="display:flex;align-items:center;gap:9px;">
+              <svg class="sidebar-brand-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <ellipse cx="12" cy="6" rx="8" ry="3" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M4 6v4c0 1.657 3.582 3 8 3s8-1.343 8-3V6" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M4 10v4c0 1.657 3.582 3 8 3s8-1.343 8-3v-4" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M4 14v4c0 1.657 3.582 3 8 3s8-1.343 8-3v-4" stroke="currentColor" stroke-width="1.5"/>
+              </svg>
+              <span class="sidebar-brand-name">SQLite GUI</span>
+            </div>
+          </div>
+          <div class="sidebar-actions">
+            <a href="<%= basePath %>/home" class="sidebar-new-table-btn back">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 11L5 7l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Back to Home
+            </a>
           </div>
         </div>
+      </aside>
+
+      <!-- Main wrapper -->
+      <div class="main-wrapper">
+        <!-- Topbar -->
+        <header class="topbar">
+          <button class="sidebar-toggle-btn" id="sidebar-toggle-btn" title="Toggle sidebar">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 4h14M2 9h14M2 14h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <span class="topbar-title">Insert Row</span>
+        </header>
+
+        <!-- Content — insert.js targets .main_body -->
+        <main class="main-content main_body">
+          <!-- insert.js populates this area dynamically -->
+        </main>
       </div>
     </div>
   </body>

@@ -1,138 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <%- include('partials/baseHead', {basePath, title: 'Create Table' , js: ['createTable.js']}); %>
+    <%- include('partials/baseHead', {basePath, title: 'Create Table', js: ['createTable.js']}); %>
   </head>
   <body>
-    <div class="page_body">
-      <div class="sidebar">
-        <h1
-          style="text-align: center; color: white"
-          class="form-label fs-4 text"
-        >
-          SQLite GUI
-        </h1>
-        <div
-          style="
-            height: 10vh;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          "
-        >
-          <a href="<%= basePath %>/home" class="btn btn-primary">Go back to homepage</a>
-        </div>
-      </div>
-      <div class="right_side">
-        <div class="main_body">
-          <div
-            style="width: 40vw; position: absolute; right: 10vh; display: none"
-            class="alert alert-warning"
-            role="alert"
-            id="date_alert"
-          >
-            IMPORTANT! Since SQLite 3 does not have a native type for date/time
-            storage, the type DATE is used to set the default value of a
-            DATETIME column to the current timestamp whenever a new row is
-            inserted. In order to insert a specific date chose type TEXT.
-          </div>
-          <div class="main_body_header">
-            <h1 class="body_title">Create new table :</h1>
-          </div>
-          <label class="form-label">Name of the table :</label><br />
-          <input id="table-name" class="form-control" />
-          <br />
+    <div class="app-layout">
+      <!-- Mobile overlay -->
+      <div id="sidebar-overlay" class="sidebar-overlay"></div>
 
-          <div class="create_box_container">
-            <div class="create_box">
-              <div class="create_box_top">
-                <label class="form-label">Name</label><br />
-              </div>
-              <div class="create_box_bottom">
-                <input id="input_form_name" class="form-control" />
-              </div>
+      <!-- Sidebar -->
+      <aside id="sidebar" class="sidebar">
+        <div class="sidebar-inner">
+          <div class="sidebar-brand">
+            <div style="display:flex;align-items:center;gap:9px;">
+              <svg class="sidebar-brand-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <ellipse cx="12" cy="6" rx="8" ry="3" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M4 6v4c0 1.657 3.582 3 8 3s8-1.343 8-3V6" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M4 10v4c0 1.657 3.582 3 8 3s8-1.343 8-3v-4" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M4 14v4c0 1.657 3.582 3 8 3s8-1.343 8-3v-4" stroke="currentColor" stroke-width="1.5"/>
+              </svg>
+              <span class="sidebar-brand-name">SQLite GUI</span>
             </div>
-            <div class="create_box">
-              <div class="create_box_top">
-                <label class="form-label">Type</label><br />
+          </div>
+          <div class="sidebar-actions">
+            <a href="<%= basePath %>/home" class="sidebar-new-table-btn back">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 11L5 7l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Back to Home
+            </a>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main wrapper -->
+      <div class="main-wrapper">
+        <!-- Topbar -->
+        <header class="topbar">
+          <button class="sidebar-toggle-btn" id="sidebar-toggle-btn" title="Toggle sidebar">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 4h14M2 9h14M2 14h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <span class="topbar-title">Create New Table</span>
+        </header>
+
+        <!-- Content -->
+        <main class="main-content main_body">
+          <!-- Date alert -->
+          <div class="alert alert-warning" role="alert" id="date_alert"
+               style="display:none;margin-bottom:16px;border-radius:8px;font-size:13.5px;">
+            <strong>Note:</strong> SQLite 3 has no native date/time type.
+            The <code>DATE</code> type stores the current timestamp as default on insert.
+            Use <code>TEXT</code> to store a specific date.
+          </div>
+
+          <div class="form-card">
+            <h2 class="form-card-title">Create New Table</h2>
+
+            <!-- Table name -->
+            <div class="form-field-group">
+              <label for="table-name">Table name</label>
+              <input id="table-name" class="form-control" placeholder="e.g. users" style="max-width:320px;" />
+            </div>
+
+            <!-- Column config -->
+            <p style="font-size:13px;font-weight:600;color:#374151;margin-bottom:10px;">Add Columns</p>
+            <div class="column-config-grid">
+              <div class="column-config-item">
+                <label>Name</label>
+                <input id="input_form_name" class="form-control form-control-sm" placeholder="column_name" />
               </div>
-              <div class="create_box_bottom">
-                <select id="input-type" class="insert_btn">
+              <div class="column-config-item">
+                <label>Type</label>
+                <select id="input-type" class="form-select form-select-sm">
                   <option value="TEXT">TEXT</option>
                   <option value="INTEGER">INTEGER</option>
                   <option value="REAL">REAL</option>
                   <option value="DATE">DATE</option>
                 </select>
               </div>
-            </div>
-            <div class="create_box" id="pk-input-div">
-              <div class="create_box_top">
-                <label class="form-label">Primary Key</label><br />
-              </div>
-              <div class="create_box_bottom">
-                <select id="input-pk" class="insert_btn">
+              <div class="column-config-item" id="pk-input-div">
+                <label>Primary Key</label>
+                <select id="input-pk" class="form-select form-select-sm">
                   <option value="">No</option>
                   <option value="PRIMARY KEY">Yes</option>
                 </select>
               </div>
-            </div>
-            <div class="create_box" id="fk-input-div">
-              <div class="create_box_top">
-                <label class="form-label">Foreign Key</label><br />
-              </div>
-              <div class="create_box_bottom">
-                <select id="input-fk" class="insert_btn">
+              <div class="column-config-item" id="fk-input-div">
+                <label>Foreign Key</label>
+                <select id="input-fk" class="form-select form-select-sm">
                   <option value="no">No</option>
                   <option value="yes">Yes</option>
                 </select>
               </div>
-            </div>
-            <div style="display: none" class="create_box" id="table-input-div">
-              <div class="create_box_top">
-                <label class="form-label">Table</label><br />
+              <div class="column-config-item" id="table-input-div" style="display:none;">
+                <label>Ref. Table</label>
+                <select id="input-table" class="form-select form-select-sm"></select>
               </div>
-              <div class="create_box_bottom">
-                <select id="input-table" class="insert_btn"></select>
+              <div class="column-config-item" id="Columns" style="display:none;">
+                <label>Ref. Column</label>
+                <select id="column-table" class="form-select form-select-sm"></select>
               </div>
-            </div>
-            <div style="display: none" class="create_box" id="Columns">
-              <div class="create_box_top">
-                <label class="form-label">Columns</label><br />
-              </div>
-              <div class="create_box_bottom">
-                <select id="column-table" class="insert_btn"></select>
+              <div class="column-config-item" id="default-input-div">
+                <label>Default Value</label>
+                <input id="default-input" class="form-control form-control-sm" placeholder="optional" />
               </div>
             </div>
-            <div class="create_box" id="default-input-div">
-              <div class="create_box_top">
-                <label class="form-label">Default Value</label><br />
-              </div>
-              <div class="create_box_bottom">
-                <input id="default-input" class="form-control" />
-              </div>
+
+            <button id="insert_btn" class="insert_btn" style="margin-bottom:20px;">
+              Add Column
+            </button>
+
+            <!-- Columns preview table -->
+            <div class="table_component" role="region" tabindex="0" style="margin-bottom:16px;">
+              <table class="data-table table table-striped table-hover">
+                <thead>
+                  <tr>
+                    <th scope="col">Column</th>
+                    <th scope="col">Data Type</th>
+                    <th scope="col">Primary Key</th>
+                    <th scope="col">Default Value</th>
+                    <th scope="col">Foreign Key</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
             </div>
+
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button id="create_table_btn" class="insert_btn">Create Table</button>
+              <button id="query_table_btn" class="insert_btn">Get Query</button>
+            </div>
+            <div style="width:100%;margin-top:12px;" id="textare_container"></div>
           </div>
-          <br />
-          <button id="insert_btn" class="insert_btn">Add column</button>
-          <div class="table_component" role="region" tabindex="0">
-            <table class="table table-striped table-hover">
-              <thead>
-                <tr>
-                  <th scope="col">Column</th>
-                  <th scope="col">Data Type</th>
-                  <th scope="col">Primary key</th>
-                  <th scope="col">Default value</th>
-                  <th scope="col">Foreign key</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-          <button id="create_table_btn" class="insert_btn">Create Table</button>
-          <button id="query_table_btn" class="insert_btn">Get query</button>
-          <div style="width: 100%" id="textare_container"></div>
-        </div>
+        </main>
       </div>
     </div>
   </body>

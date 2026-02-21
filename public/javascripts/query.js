@@ -76,6 +76,8 @@ async function createForm() {
     tableBody.innerHTML = "";
     resultParagraph.textContent = "";
 
+    const resultCard = document.getElementById("query-result-card");
+
     fetch(`${window.BASE_URL}/api/tables/query`, {
       method: "POST",
       headers: {
@@ -87,7 +89,9 @@ async function createForm() {
       .then((data) => {
         if (data.type === "string") {
           resultParagraph.textContent = data.data;
+          if (resultCard) resultCard.style.display = "none";
         } else {
+          if (resultCard) resultCard.style.display = "block";
           if (data.data.length > 0) {
             // Generate table headers
             const headers = Object.keys(data.data[0]);
@@ -101,7 +105,7 @@ async function createForm() {
             tableHead.appendChild(headerRow);
 
             // Populate table rows
-            data.data.forEach((row, index) => {
+            data.data.forEach((row) => {
               const tr = document.createElement("tr");
 
               headers.forEach((header) => {
