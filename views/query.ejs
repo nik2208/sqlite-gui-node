@@ -1,87 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <%- include('partials/baseHead', {basePath, title: 'Custom Query' , js: ['query.js']}); %>
+    <%- include('partials/baseHead', {basePath, title: 'Custom Query', js: ['query.js']}); %>
   </head>
   <body>
-    <div class="page_body">
-      <div class="sidebar">
-        <h1
-          style="text-align: center; color: white"
-          class="form-label fs-4 text"
-        >
-          SQLite GUI
-        </h1>
-        <div
-          style="
-            height: 10vh;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          "
-        >
-          <a href="<%= basePath %>/home" class="btn btn-primary">Go back to homepage</a>
-        </div>
-      </div>
-      <div class="right_side">
-        <div class="main_body">
-          <div class="mb-3">
-            <label for="exampleFormControlTextarea1" class="form-label"
-              >Execute your costum query here :</label
-            >
-            <button
-              style="position: absolute; right: 6vh"
-              type="button"
-              class="btn btn-success btn-sm"
-              id="runButton"
-            >
-              Run
-              <img
-                style="height: 2vh; margin-bottom: 0.2vh"
-                src="<%= basePath %>/icons/play.svg"
-              />
-            </button>
-            <select
-              style="position: absolute; right: 55vh; width: 23vh; top: 5.1vh"
-              class="form-select form-select-sm"
-              aria-label="Default select example"
-              id="querySelect"
-            >
-              <option selected>Load saved Query</option>
-            </select>
-            <button
-              style="position: absolute; right: 16vh"
-              type="button"
-              class="btn btn-success btn-sm"
-              id="saveQuery"
-            >
-              Save query
-            </button>
-            <input
-              style="position: absolute; right: 30vh; width: 23vh; top: 5.1vh"
-              type="text"
-              class="form-control form-control-sm"
-              id="query_name"
-              placeholder="name your query"
-              aria-describedby="emailHelp"
-            />
+    <div class="app-layout">
+      <!-- Mobile overlay -->
+      <div id="sidebar-overlay" class="sidebar-overlay"></div>
 
-            <textarea
-              style="margin-top: 2vh"
-              class="form-control"
-              id="queryTextarea"
-              rows="3"
-            ></textarea>
+      <!-- Sidebar -->
+      <aside id="sidebar" class="sidebar">
+        <div class="sidebar-inner">
+          <div class="sidebar-brand">
+            <div style="display:flex;align-items:center;gap:9px;">
+              <svg class="sidebar-brand-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <ellipse cx="12" cy="6" rx="8" ry="3" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M4 6v4c0 1.657 3.582 3 8 3s8-1.343 8-3V6" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M4 10v4c0 1.657 3.582 3 8 3s8-1.343 8-3v-4" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M4 14v4c0 1.657 3.582 3 8 3s8-1.343 8-3v-4" stroke="currentColor" stroke-width="1.5"/>
+              </svg>
+              <span class="sidebar-brand-name">SQLite GUI</span>
+            </div>
           </div>
-          <table class="table table-hover" id="resultTable">
-            <thead></thead>
-            <tbody>
-              <!-- Data will be inserted here -->
-            </tbody>
-          </table>
-          <p id="resultParagraph"></p>
+          <div class="sidebar-actions">
+            <a href="<%= basePath %>/home" class="sidebar-new-table-btn back">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 11L5 7l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Back to Home
+            </a>
+          </div>
         </div>
+      </aside>
+
+      <!-- Main wrapper -->
+      <div class="main-wrapper">
+        <!-- Topbar -->
+        <header class="topbar">
+          <button class="sidebar-toggle-btn" id="sidebar-toggle-btn" title="Toggle sidebar">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 4h14M2 9h14M2 14h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <span class="topbar-title">Custom Query</span>
+        </header>
+
+        <!-- Content -->
+        <main class="main-content">
+          <!-- Query editor -->
+          <div class="query-editor-card">
+            <div class="query-editor-toolbar">
+              <select class="form-select form-select-sm" id="querySelect" style="max-width:200px;font-size:13px;">
+                <option selected>Load saved query…</option>
+              </select>
+              <input type="text" class="form-control form-control-sm" id="query_name"
+                     placeholder="Query name…" style="max-width:160px;font-size:13px;" />
+              <button class="btn-modern btn-secondary-modern" id="saveQuery">
+                <svg width="13" height="13" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M2 10V12h10V10M7 2v7M4 6l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Save
+              </button>
+              <button class="btn-modern btn-primary-modern" id="runButton">
+                <svg width="13" height="13" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M3 2l9 5-9 5V2z" fill="currentColor"/>
+                </svg>
+                Run
+              </button>
+            </div>
+            <textarea class="query-textarea" id="queryTextarea" rows="8"
+                      placeholder="SELECT * FROM your_table WHERE …"></textarea>
+          </div>
+
+          <!-- Result message -->
+          <p id="resultParagraph" style="margin-bottom:12px;color:#64748b;font-size:13.5px;"></p>
+
+          <!-- Result table -->
+          <div class="query-result-card" id="query-result-card" style="display:none;">
+            <div class="table-card-header">
+              <h3 class="table-card-title">Query Results</h3>
+            </div>
+            <div style="overflow-x:auto;">
+              <table class="data-table" id="resultTable">
+                <thead></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </main>
       </div>
     </div>
   </body>

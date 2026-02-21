@@ -4,53 +4,88 @@
     <%- include('partials/baseHead', {basePath, title: 'Home', js: ['home.js', 'pagination.js']}); %>
   </head>
   <body>
-    <div class="page_body">
-      <div class="sidebar">
-        <h1 style="text-align: center; color: white;" class="form-label fs-4 text">SQLite GUI</h1>
-        <a style="text-decoration: none" href="<%= basePath %>/createtable">
-          <div class="sidebar_table_div_btn">
-            <button class="create_btn">Create</button>
-          </div>
-        </a>
-      </div>
+    <div class="app-layout">
+      <!-- Mobile overlay -->
+      <div id="sidebar-overlay" class="sidebar-overlay"></div>
 
-      <div class="right_side">
-        <nav class="navbar navbar-expand-lg bg-body-tertiary">
-          <div class="container-fluid">
-            <div class="collapse navbar-collapse" id="navbarNav">
-              <ul class="navbar-nav">
-                <li class="nav-item">
-                  <a class="nav-link active" aria-current="page" href="<%= basePath %>/query">  <button type="button" class="btn btn-primary" data-bs-toggle="button">Custom query</button>
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link active" aria-current="page">  <button style="opacity: 0.4; cursor: not-allowed; pointer-events: none;" type="button" class="btn btn-primary" data-bs-toggle="button">Import database</button>
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link active" href="<%= basePath %>/output.sql" aria-current="page">  <button type="button" id="export_db" class="btn btn-primary" data-bs-toggle="button">Export database</button>
-                  </a>
-                </li>
-              </ul>
+      <!-- Sidebar -->
+      <aside id="sidebar" class="sidebar">
+        <div class="sidebar-inner">
+          <!-- Brand -->
+          <div class="sidebar-brand">
+            <div style="display:flex;align-items:center;gap:9px;">
+              <svg class="sidebar-brand-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <ellipse cx="12" cy="6" rx="8" ry="3" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M4 6v4c0 1.657 3.582 3 8 3s8-1.343 8-3V6" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M4 10v4c0 1.657 3.582 3 8 3s8-1.343 8-3v-4" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M4 14v4c0 1.657 3.582 3 8 3s8-1.343 8-3v-4" stroke="currentColor" stroke-width="1.5"/>
+              </svg>
+              <span class="sidebar-brand-name">SQLite GUI</span>
             </div>
           </div>
-        </nav>
-        <div class="main_body">
-          <div
-            style="
-              height: 70vh;
-              width: 100%;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-            "
-          >
-            <h1 style="align-items: center" class="form-label fs-1 text">
-              Select Table to View it
-            </h1>
+
+          <!-- New Table button -->
+          <div class="sidebar-actions">
+            <a href="<%= basePath %>/createtable" class="sidebar-new-table-btn">
+              <svg width="13" height="13" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              New Table
+            </a>
+          </div>
+
+          <!-- Tables -->
+          <div class="sidebar-section-title">Tables</div>
+          <div id="tables-list" class="tables-list">
+            <div style="text-align:center;padding:20px 16px;color:#64748b;font-size:12px;">Loading…</div>
+          </div>
         </div>
+      </aside>
+
+      <!-- Main wrapper -->
+      <div class="main-wrapper">
+        <!-- Topbar -->
+        <header class="topbar">
+          <button class="sidebar-toggle-btn" id="sidebar-toggle-btn" title="Toggle sidebar">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 4h14M2 9h14M2 14h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <span class="topbar-title" id="topbar-table-name">Dashboard</span>
+          <div class="topbar-actions">
+            <a href="<%= basePath %>/query" class="btn-modern btn-secondary-modern">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2 3h10M2 7h6M2 11h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <path d="M10 8l2 2-2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span class="btn-label">Custom Query</span>
+            </a>
+            <a href="<%= basePath %>/output.sql" class="btn-modern btn-secondary-modern">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M7 1v8M4 6l3 3 3-3M2 10v1.5A1.5 1.5 0 003.5 13h7A1.5 1.5 0 0012 11.5V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span class="btn-label">Export DB</span>
+            </a>
+          </div>
+        </header>
+
+        <!-- Content -->
+        <main id="main-content" class="main-content">
+          <div class="welcome-state">
+            <svg width="72" height="72" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <ellipse cx="12" cy="6" rx="8" ry="3" stroke="#cbd5e1" stroke-width="1.5"/>
+              <path d="M4 6v4c0 1.657 3.582 3 8 3s8-1.343 8-3V6" stroke="#cbd5e1" stroke-width="1.5"/>
+              <path d="M4 10v4c0 1.657 3.582 3 8 3s8-1.343 8-3v-4" stroke="#cbd5e1" stroke-width="1.5"/>
+              <path d="M4 14v4c0 1.657 3.582 3 8 3s8-1.343 8-3v-4" stroke="#cbd5e1" stroke-width="1.5"/>
+            </svg>
+            <h2>Select a table to view its data</h2>
+            <p>Choose a table from the sidebar or create a new one</p>
+          </div>
+        </main>
+
+        <!-- Pagination -->
+        <div id="pagination_container" class="pagination_container"></div>
       </div>
-      <div id="pagination_container"></div>
     </div>
   </body>
 </html>
