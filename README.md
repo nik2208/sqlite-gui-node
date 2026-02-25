@@ -1,4 +1,4 @@
-# SQLite GUI for Node.js Apps
+# GUI for Node.js Databases
 
 [![Version npm](https://img.shields.io/npm/v/sqlite-gui-node.svg?style=flat-square)](https://www.npmjs.com/package/sqlite-gui-node)
 [![npm Downloads](https://img.shields.io/npm/dm/sqlite-gui-node.svg?style=flat-square)](https://www.npmjs.com/package/sqlite-gui-node)
@@ -8,9 +8,12 @@
 
 [![NPM](https://nodei.co/npm/sqlite-gui-node.png?downloads=true&downloadRank=true)](https://nodei.co/npm/sqlite-gui-node/)
 
+A modern, dark-themed web GUI for managing your Node.js databases — **SQLite, MySQL/MariaDB and PostgreSQL** — directly from the browser. Schema discovery is performed automatically via database reflection, so no manual configuration is required.
+
 - [Installation](#installation)
 - [Using a Custom Port](#using-a-custom-port)
 - [Using it as Express Js Middleware](#using-it-as-express-js-middleware)
+- [Multi-Database Support](#multi-database-support)
 - [Arguments](#arguments)
 - [Features](#features)
 - [Updating the Package](#updating-the-package)
@@ -23,15 +26,13 @@ To use `sqlite-gui-node`, you need to have Node.js installed on your machine. Yo
 
 ### Step 1: Install the Package
 
-You can install `sqlite-gui-node` using npm (Node Package Manager). Run the following command in your terminal:
-
 ```
 $ npm install sqlite-gui-node
 ```
 
 ### Step 2: Import and Initialize
 
-After installing the package, you can import it in your index file of your project server.
+After installing the package, import it in your server's entry file.
 
 ```js
 const express = require("express");
@@ -43,7 +44,7 @@ const { SqliteGuiNode } = require("sqlite-gui-node");
 
 const app = express();
 
-// use the GUI
+// start the GUI (default port 8080)
 SqliteGuiNode(db).catch((err) => {
   console.error("Error starting the GUI:", err);
 });
@@ -53,11 +54,9 @@ app.listen(4000);
 
 ### Step 3: Access the GUI
 
-Once the GUI is started, you can access it via a web browser. By default, it runs on http://localhost:8080/home. Open your browser and navigate to this URL to start performing CRUD operations on your SQLite database.
+Once the GUI is started, open your browser and navigate to **http://localhost:8080/home** to start managing your database.
 
 ## Using a Custom Port
-
-If you want to use a specific port, you can pass it as the second argument when initializing sqlite-gui-node:
 
 ```js
 // Pass the port as the second argument
@@ -68,24 +67,21 @@ SqliteGuiNode(db, 3005).catch((err) => {
 
 ## Using it as Express Js Middleware
 
-If you want to use it in the same port as express, you can use `SqliteGuiNodeMiddleware`:
+If you want to mount the GUI inside the same Express app, use `SqliteGuiNodeMiddleware`:
 
 ```js
 const express = require("express");
-// import the SQLite DB that you use
 const sqlite3 = require("sqlite3").verbose();
 const db = new sqlite3.Database("app.db");
-// Import the package
 const { SqliteGuiNodeMiddleware } = require("sqlite-gui-node");
 
 const app = express();
-// Example usage of middleware
 app.use(SqliteGuiNodeMiddleware(app, db));
 
 app.listen(4000);
 ```
 
-You can also integrate SQLite GUI by using the createSqliteGuiApp function. This function returns a separate Express application (router) that you can mount as middleware on a desired path in your main application.
+You can also use `createSqliteGuiApp` to mount the GUI on a sub-path:
 
 ```js
 const sqlite3 = require('sqlite3').verbose();
@@ -95,48 +91,111 @@ const express = require('express');
 const app = express();
 const db = new sqlite3.Database('app.db');
 
-// Create the SQLite GUI app
 const sqliteGuiApp = await createSqliteGuiApp(db);
-
-// Mount the SQLite GUI app on the 
 app.use('/sqlite', sqliteGuiApp);
+// Dashboard: http://localhost:4000/sqlite/home
 ```
 
-Now all SQLite GUI routes will be accessible under the /sqlite path. For example, the main dashboard will be available at `/sqlite/home`.
+## Multi-Database Support
+
+> **mysql2** and **pg** are optional dependencies — install only the driver you need.
+
+The library ships with a pluggable adapter layer. Each adapter uses **database reflection** (`information_schema` / `PRAGMA`) to discover tables and columns at runtime, so no manual schema definition is required.
+
+### MySQL / MariaDB
+
+```
+$ npm install mysql2
+```
+
+```js
+const mysql = require("mysql2/promise");
+const { MysqlAdapter, SqliteGuiNodeWithAdapter } = require("sqlite-gui-node");
+
+const pool = mysql.createPool({
+  host: "localhost",
+  user: "root",
+  password: "secret",
+  database: "mydb",
+});
+
+SqliteGuiNodeWithAdapter(new MysqlAdapter(pool), 8080);
+```
+
+### PostgreSQL
+
+```
+$ npm install pg
+```
+
+```js
+const { Pool } = require("pg");
+const { PostgresAdapter, SqliteGuiNodeWithAdapter } = require("sqlite-gui-node");
+
+const pool = new Pool({
+  host: "localhost",
+  user: "postgres",
+  password: "secret",
+  database: "mydb",
+});
+
+SqliteGuiNodeWithAdapter(new PostgresAdapter(pool), 8080);
+```
+
+### Bring your own adapter
+
+Implement the `IDatabaseAdapter` interface to add support for any other data source:
+
+```ts
+import type { IDatabaseAdapter } from "sqlite-gui-node";
+
+class MyCustomAdapter implements IDatabaseAdapter {
+  // implement all interface methods …
+}
+```
 
 ## Arguments
 
-| Argument | Type               | Description                                                              |
-| -------- | ------------------ | ------------------------------------------------------------------------ |
-| db       | `sqlite3.Database` | The file of your SQLite database.                                        |
-| port     | number             | (Optional) The port on which the GUI server will run. Default is `8080`. |
+### `SqliteGuiNode(db, port?)` / `SqliteGuiNodeWithAdapter(adapter, port?)`
+
+| Argument | Type                              | Description                                                              |
+| -------- | --------------------------------- | ------------------------------------------------------------------------ |
+| db       | `sqlite3.Database`                | Your SQLite database instance (legacy API).                              |
+| adapter  | `IDatabaseAdapter`                | A database adapter (SQLite, MySQL, PostgreSQL, or custom).               |
+| port     | `number`                          | (Optional) Port for the GUI server. Default is `8080`.                   |
 
 ## Features
 
 ### 1. CRUD Operations
 
-Perform Create, Read, Update, and Delete operations on your SQLite databases with ease. Our GUI simplifies the process, making database management straightforward and efficient.
+Perform Create, Read, Update, and Delete operations on your database tables with ease.
 
-- **Create**: Add new records to your database tables.
-- **Read**: Retrieve and view data from your database.
-- **Update**: Modify existing records.
-- **Delete**: Remove records from your database.
+- **Create**: Add new records via auto-generated forms.
+- **Read**: Browse paginated table data in a clean data grid.
+- **Update**: Edit existing records field by field.
+- **Delete**: Remove rows or entire tables.
 
 ### 2. Write Custom Queries
 
-Unleash the full power of SQL by writing your own custom queries, our GUI supports it all.
+Write and execute any SQL statement directly from the built-in query editor — SELECT, INSERT, UPDATE, DELETE, CREATE, and more.
 
 ### 3. Save Custom Queries
 
-Save your frequently used custom queries for quick access and reuse. This feature helps you streamline your workflow by keeping your important queries organized and readily available.
+Save your frequently used queries for quick access and reuse.
 
 ### 4. Generate Query Code Using GUI
 
-Generate query code directly from the GUI, saving you time and reducing the risk of syntax errors. Simply design your query using our intuitive interface, and let the GUI generate the corresponding SQL code for you.
+Generate INSERT / UPDATE / CREATE TABLE SQL from the GUI without writing a single line of SQL.
+
+### 5. Export Database
+
+Export the entire database schema and data to a `.sql` file with one click.
+
+### 6. Multi-Database Support
+
+Connect to **SQLite**, **MySQL/MariaDB**, or **PostgreSQL** using the adapter-based API. Schema introspection is automatic — no manual table mapping needed.
 
 ## Updating the Package
-
-To update `sqlite-gui-node` to the latest version, you can run:
 
 ```
 $ npm update sqlite-gui-node
@@ -144,22 +203,20 @@ $ npm update sqlite-gui-node
 
 ## Uninstallation
 
-If you need to uninstall sqlite-gui-node, you can do so by running:
-
 ```
 $ npm uninstall sqlite-gui-node
 ```
 
 ## Screenshots
 
-![Display](figures/display_table.png)
+![Table view](figures/display_table.png)
 ![Create table](figures/create_table.png)
-![Costum query](figures/costum_query.png)
-![Edit](figures/edit.png)
+![Custom query](figures/costum_query.png)
+![Edit row](figures/edit.png)
 
 ## Troubleshooting
 
-If you encounter any issues during installation or usage, please refer to the Issues section on GitHub.
+If you encounter any issues during installation or usage, please refer to the [Issues](https://github.com/AzouKr/sqlite-gui/issues) section on GitHub.
 
 ## License
 
