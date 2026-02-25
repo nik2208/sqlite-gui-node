@@ -1,7 +1,7 @@
 # GUI for Node.js Databases
 
-[![Version npm](https://img.shields.io/npm/v/sqlite-gui-node.svg?style=flat-square)](https://www.npmjs.com/package/sqlite-gui-node)
-[![npm Downloads](https://img.shields.io/npm/dm/sqlite-gui-node.svg?style=flat-square)](https://www.npmjs.com/package/sqlite-gui-node)
+[![Version npm](https://img.shields.io/npm/v/sqlite-gui-node.svg?style=flat-square)](https://www.npmjs.com/package/@nik2208/sqlite-gui-node)
+[![npm Downloads](https://img.shields.io/npm/dm/sqlite-gui-node.svg?style=flat-square)](https://www.npmjs.com/package/@nik2208/sqlite-gui-node)
 
 <!--- [![build status](https://github.com/AzouKr/sqlite-gui-node/actions/workflows/ci.yml/badge.svg)](https://github.com/AzouKr/sqlite-gui-node/actions/workflows/ci.yml)--->
 <!---[![coverage status](https://coveralls.io/repos/github/AzouKr/sqlite-gui-node/badge.svg?branch=main)](https://coveralls.io/github/AzouKr/sqlite-gui-node?branch=main)--->
@@ -27,7 +27,7 @@ To use `sqlite-gui-node`, you need to have Node.js installed on your machine. Yo
 ### Step 1: Install the Package
 
 ```
-$ npm install sqlite-gui-node
+$ npm install @nik2208/sqlite-gui-node
 ```
 
 ### Step 2: Import and Initialize
@@ -220,8 +220,8 @@ If you encounter any issues during installation or usage, please refer to the [I
 
 ## License
 
-The MIT License © 2024-present KERIM Abdelmouiz. All rights reserved.
+The MIT License © 2026.
 
 ---
 
-Made with ♥ by [KERIM Abdelmouiz](https://github.com/AzouKr)
+Improved with ♥ by [NiK](https://github.com/nik2208)
