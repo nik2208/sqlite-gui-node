@@ -1,16 +1,14 @@
 import express, { Request, Response } from "express";
-import databaseFunctions from "../Utils/databaseFunctions";
 import sqlGenerator from "../Utils/sqlGenerator";
-import { quoteColumn as q } from "../Utils/helpers";
-import type { Database } from "sqlite3";
+import type { IDatabaseAdapter } from "../adapters/IDatabaseAdapter";
 
 const router = express.Router();
 
-function tableRoutes(db: Database) {
+function tableRoutes(adapter: IDatabaseAdapter) {
   router.get("/", async (req: Request, res: Response) => {
     try {
-      await databaseFunctions.exportDatabaseToSQL(db);
-      const tables = await databaseFunctions.fetchAllTables(db);
+      await adapter.exportDatabaseToSQL();
+      const tables = await adapter.fetchAllTables();
       res.status(200).json(tables);
     } catch (error) {
       res.status(500).json({ message: "Internal server error" });
@@ -19,8 +17,8 @@ function tableRoutes(db: Database) {
 
   router.get("/local/query", async (req: Request, res: Response) => {
     try {
-      await databaseFunctions.InitializeDB(db);
-      const queries = await databaseFunctions.fetchQueries(db);
+      await adapter.InitializeDB();
+      const queries = await adapter.fetchQueries();
       res.status(200).json(queries);
     } catch (error) {
       res.status(500).json({ message: "Internal server error" });
@@ -29,13 +27,9 @@ function tableRoutes(db: Database) {
 
   router.post("/local/query", async (req: Request, res: Response) => {
     try {
-      await databaseFunctions.InitializeDB(db);
+      await adapter.InitializeDB();
       const { name, sqlStatement } = req.body;
-      const response = await databaseFunctions.insertQuery(
-        db,
-        name,
-        sqlStatement
-      );
+      const response = await adapter.insertQuery(name, sqlStatement);
       res.status(200).json(response);
     } catch (error) {
       res.status(500).json({ message: "Internal server error" });
@@ -44,10 +38,13 @@ function tableRoutes(db: Database) {
 
   router.get("/:name", async (req: Request, res: Response) => {
     const { name } = req.params;
-    const {page, perPage} = req.query;
-    
+    const { page, perPage } = req.query;
+
     try {
-      const response = await databaseFunctions.fetchTable(db, name, { page: Number(page), perPage: Number(perPage) });
+      const response = await adapter.fetchTable(name, {
+        page: Number(page),
+        perPage: Number(perPage),
+      });
       res.status(200).json(response);
     } catch (error) {
       res.status(500).json({ message: "Internal server error" });
@@ -57,21 +54,21 @@ function tableRoutes(db: Database) {
   router.get("/infos/:name", async (req: Request, res: Response) => {
     const { name } = req.params;
     try {
-      const response = await databaseFunctions.fetchTableInfo(db, name);
-      const fk = await databaseFunctions.fetchTableForeignKeys(db, name);
+      const response = await adapter.fetchTableInfo(name);
+      const fk = await adapter.fetchTableForeignKeys(name);
       if (fk.bool && fk.data !== undefined) {
         fk.data.forEach((element) => {
-          databaseFunctions
-            .fetchFK(db, element.table, element.to)
-            .then((fk_response) => {
-              if (response.data !== undefined) {
-                response.data.forEach((item) => {
-                  if (item.field === element.from) {
-                    item.fk = fk_response.data.map((obj) => obj[element.to]);
-                  }
-                });
-              }
-            });
+          adapter.fetchFK(element.table, element.to).then((fk_response) => {
+            if (response.data !== undefined) {
+              response.data.forEach((item) => {
+                if (item.field === element.from) {
+                  item.fk = fk_response.data.map(
+                    (obj: any) => obj[element.to]
+                  );
+                }
+              });
+            }
+          });
         });
       }
       res.status(200).json(response);
@@ -83,7 +80,7 @@ function tableRoutes(db: Database) {
   router.get("/all/infos/:name", async (req: Request, res: Response) => {
     const { name } = req.params;
     try {
-      const response = await databaseFunctions.fetchAllTableInfo(db, name);
+      const response = await adapter.fetchAllTableInfo(name);
       res.status(200).json(response);
     } catch (error) {
       res.status(500).json({ message: "Internal server error" });
@@ -94,11 +91,11 @@ function tableRoutes(db: Database) {
     try {
       const { tablename, dataArray } = req.body;
       const sql = await sqlGenerator.generateInsertSQL(
-        db,
+        adapter,
         tablename,
         dataArray
       );
-      const response = await databaseFunctions.runQuery(db, sql);
+      const response = await adapter.runQuery(sql);
       res.status(200).json(response);
     } catch (error) {
       res.status(500).json({ message: "Internal server error" });
@@ -109,7 +106,7 @@ function tableRoutes(db: Database) {
     try {
       const { tablename, dataArray } = req.body;
       const sql = await sqlGenerator.generateInsertSQL(
-        db,
+        adapter,
         tablename,
         dataArray
       );
@@ -124,7 +121,7 @@ function tableRoutes(db: Database) {
       const { sqlQuery } = req.body;
       const lowersqlQuery = sqlQuery.toLowerCase();
       if (lowersqlQuery.startsWith("select")) {
-        const response = await databaseFunctions.runSelectQuery(db, sqlQuery);
+        const response = await adapter.runSelectQuery(sqlQuery);
         if (lowersqlQuery.startsWith("select count(*)")) {
           if (response.data !== undefined) {
             res.status(200).json({
@@ -141,7 +138,7 @@ function tableRoutes(db: Database) {
           res.status(200).json({ type: "table", data: response.data });
         }
       } else {
-        await databaseFunctions.runQuery(db, sqlQuery);
+        await adapter.runQuery(sqlQuery);
         let message = "";
         if (lowersqlQuery.startsWith("update"))
           message = "Updated Successfully";
@@ -161,8 +158,9 @@ function tableRoutes(db: Database) {
   router.post("/create", async (req: Request, res: Response) => {
     try {
       const { tableName, data } = req.body;
-      const sql = sqlGenerator.generateCreateTableSQL(tableName, data);
-      const response = await databaseFunctions.runQuery(db, sql);
+      const q = adapter.quoteIdentifier.bind(adapter);
+      const sql = sqlGenerator.generateCreateTableSQL(tableName, data, q);
+      const response = await adapter.runQuery(sql);
       res.status(200).json(response);
     } catch (error) {
       res.status(500).json({ message: "Internal server error" });
@@ -172,7 +170,8 @@ function tableRoutes(db: Database) {
   router.post("/generate/create", async (req: Request, res: Response) => {
     try {
       const { tableName, data } = req.body;
-      const sql = sqlGenerator.generateCreateTableSQL(tableName, data);
+      const q = adapter.quoteIdentifier.bind(adapter);
+      const sql = sqlGenerator.generateCreateTableSQL(tableName, data, q);
       res.status(200).json(sql);
     } catch (error) {
       res.status(500).json({ message: "Internal server error" });
@@ -182,13 +181,15 @@ function tableRoutes(db: Database) {
   router.post("/update", async (req: Request, res: Response) => {
     try {
       const { tablename, dataArray, userId, id_label } = req.body;
+      const q = adapter.quoteIdentifier.bind(adapter);
       const sql = sqlGenerator.generateUpdateSQL(
         tablename,
         dataArray,
         userId,
-        id_label
+        id_label,
+        q
       );
-      const response = await databaseFunctions.runQuery(db, sql);
+      const response = await adapter.runQuery(sql);
       res.status(200).json(response);
     } catch (error) {
       res.status(500).json({ message: "Internal server error" });
@@ -198,11 +199,13 @@ function tableRoutes(db: Database) {
   router.post("/generate/update", async (req: Request, res: Response) => {
     try {
       const { tablename, dataArray, userId, id_label } = req.body;
+      const q = adapter.quoteIdentifier.bind(adapter);
       const sql = sqlGenerator.generateUpdateSQL(
         tablename,
         dataArray,
         userId,
-        id_label
+        id_label,
+        q
       );
       res.status(200).json(sql);
     } catch (error) {
@@ -215,12 +218,7 @@ function tableRoutes(db: Database) {
     async (req: Request, res: Response) => {
       try {
         const { tablename, label, id } = req.params;
-        const response = await databaseFunctions.fetchRecord(
-          db,
-          tablename,
-          label,
-          id
-        );
+        const response = await adapter.fetchRecord(tablename, label, id);
         res.status(200).json(response);
       } catch (error) {
         res.status(500).json({ message: "Internal server error" });
@@ -231,11 +229,7 @@ function tableRoutes(db: Database) {
   router.post("/delete", async (req: Request, res: Response) => {
     try {
       const { tablename, id } = req.body;
-      const response = await databaseFunctions.deleteFromTable(
-        db,
-        tablename,
-        id
-      );
+      const response = await adapter.deleteFromTable(tablename, id);
       res.status(200).json(response);
     } catch (error) {
       res.status(500).json({ message: "Internal server error" });
@@ -245,8 +239,8 @@ function tableRoutes(db: Database) {
   router.post("/table/delete", async (req: Request, res: Response) => {
     try {
       const { tablename } = req.body;
-      const sql = `DROP TABLE ${q(tablename)};`;
-      const response = await databaseFunctions.runQuery(db, sql);
+      const sql = `DROP TABLE ${adapter.quoteIdentifier(tablename)};`;
+      const response = await adapter.runQuery(sql);
       res.status(200).json(response);
     } catch (error) {
       res.status(500).json({ message: "Internal server error" });

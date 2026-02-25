@@ -1,20 +1,26 @@
 import type { DataItem } from "../types";
-import databaseFunctions from "./databaseFunctions";
-import { isEmpty, quoteColumn as q, quoteValue } from "./helpers";
+import type { IDatabaseAdapter } from "../adapters/IDatabaseAdapter";
+import { isEmpty, quoteValue } from "./helpers";
+
+// Re-export the interface so callers can reference it from this module.
+export type { IDatabaseAdapter };
+
+/** Identity quoter – used as the default when no adapter is provided. */
+const noQuote = (s: string) => s;
 
 async function generateInsertSQL(
-  db: any,
+  adapter: IDatabaseAdapter,
   tableName: string,
   data: DataItem[]
 ): Promise<string> {
   // Extract field names and escape values (optional for TEXT and BLOB)
   const columns: string[] = [];
   const values: string[] = [];
+  const q = adapter.quoteIdentifier.bind(adapter);
 
   await Promise.all(
     data.map(async (item) => {
-      const hasDefault = await databaseFunctions.checkColumnHasDefault(
-        db,
+      const hasDefault = await adapter.checkColumnHasDefault(
         tableName,
         item.type.toUpperCase(),
         item.field
@@ -28,7 +34,7 @@ async function generateInsertSQL(
   );
 
   // Form the SQL statement
-  const sql = `INSERT INTO ${tableName} (${columns.join(
+  const sql = `INSERT INTO ${q(tableName)} (${columns.join(
     ", "
   )}) VALUES (${values.join(", ")});`;
 
@@ -39,21 +45,26 @@ function generateUpdateSQL(
   tableName: string,
   data: DataItem[],
   id: number | string,
-  id_label: string
+  id_label: string,
+  quoter: (s: string) => string = noQuote
 ): string {
   // Extract field names and values with proper handling
   const setClauses = data
-    .map((item) => `${q(item.field)} = ${quoteValue(item)}`)
+    .map((item) => `${quoter(item.field)} = ${quoteValue(item)}`)
     .join(", ");
   // Form the SQL statement
-  const sql = `UPDATE ${q(tableName)} SET ${setClauses} WHERE ${id_label} = ${
+  const sql = `UPDATE ${quoter(tableName)} SET ${setClauses} WHERE ${id_label} = ${
     typeof id === "string" ? `'${id}'` : id
   };`;
 
   return sql;
 }
 
-function generateCreateTableSQL(tableName: string, data: DataItem[]): string {
+function generateCreateTableSQL(
+  tableName: string,
+  data: DataItem[],
+  quoter: (s: string) => string = noQuote
+): string {
   // Map through data to generate column definitions
   const fk_array: string[] = [];
   const columnDefinitions = data
@@ -79,7 +90,7 @@ function generateCreateTableSQL(tableName: string, data: DataItem[]): string {
           throw new Error(`Unknown type: ${item.type}`);
       }
 
-      let columnDefinition = `${q(item.name)} ${columnType}`;
+      let columnDefinition = `${quoter(item.name)} ${columnType}`;
       if (item.pk) {
         columnDefinition += ` ${item.pk}`; // Include primary key constraint
       }
@@ -93,11 +104,11 @@ function generateCreateTableSQL(tableName: string, data: DataItem[]): string {
   // Form the SQL statement
   let sql;
   if (fk_array.length !== 0) {
-    sql = `CREATE TABLE IF NOT EXISTS ${q(tableName)} (${columnDefinitions} ${
+    sql = `CREATE TABLE IF NOT EXISTS ${quoter(tableName)} (${columnDefinitions} ${
       "," + fk_array.join(",")
     });`;
   } else {
-    sql = `CREATE TABLE IF NOT EXISTS ${q(tableName)} (${columnDefinitions});`;
+    sql = `CREATE TABLE IF NOT EXISTS ${quoter(tableName)} (${columnDefinitions});`;
   }
 
   return sql;
