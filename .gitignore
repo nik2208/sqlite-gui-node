@@ -3,3 +3,4 @@ notes.md
 app.db
 src/app.ts
 public/output.sql
+dist
