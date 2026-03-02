@@ -1,6 +1,6 @@
 {
-  "name": "sqlite-gui-node",
-  "version": "2.0.0",
+  "name": "@nik2208/sqlite-gui-node",
+  "version": "2.0.1",
   "description": "GUI for Node js SQLite databases",
   "main": "dist/index.js",
   "scripts": {
@@ -57,6 +57,9 @@
   },
   "optionalDependencies": {
     "mysql2": "^3.18.0",
-    "pg": "8.18.0"
+    "pg": "^8.18.0"
+  },
+  "overrides": {
+    "tar":"^7.5.4"
   }
 }
