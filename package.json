@@ -1,7 +1,7 @@
 {
   "name": "@nik2208/sqlite-gui-node",
-  "version": "2.0.1",
-  "description": "GUI for Node js SQLite databases",
+  "version": "2.0.2",
+  "description": "GUI for Node js SQLite databases, extended to support MySQL, PostgreSQL or any other SQL databases. Provides an intuitive interface for managing and querying databases.",
   "main": "dist/index.js",
   "scripts": {
     "start": "nodemon dist/app.js",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/AzouKr/sqlite-gui-node.git"
+    "url": "git+https://github.com/nik2208/sqlite-gui-node.git"
   },
   "keywords": [
     "SQLite",
@@ -24,9 +24,11 @@
     "database",
     "Query",
     "Queries",
-    "Typescript"
-  ],
-  "author": "AZOUKR",
+    "Typescript",
+    "PostgreSQL",
+    "pg"
+    ],
+  "author": "nik2208",
   "license": "MIT",
   "dependencies": {
     "body-parser": "^1.20.2",
@@ -38,9 +40,9 @@
     "winston": "^3.13.0"
   },
   "bugs": {
-    "url": "https://github.com/AzouKr/sqlite-gui/issues"
+    "url": "https://github.com/nik2208/sqlite-gui-node/issues"
   },
-  "homepage": "https://github.com/AzouKr/sqlite-gui#readme",
+  "homepage": "https://github.com/nik2208/sqlite-gui-node#readme",
   "devDependencies": {
     "@babel/core": "^7.24.5",
     "@babel/preset-env": "^7.24.5",
