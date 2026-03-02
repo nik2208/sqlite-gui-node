@@ -1,6 +1,6 @@
 {
   "name": "@nik2208/sqlite-gui-node",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "GUI for Node js SQLite databases, extended to support MySQL, PostgreSQL or any other SQL databases. Provides an intuitive interface for managing and querying databases.",
   "main": "dist/index.js",
   "scripts": {
@@ -66,6 +66,8 @@
   },
     "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "views",
+    "public"
   ]
 }
