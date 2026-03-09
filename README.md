@@ -1,12 +1,12 @@
 # GUI for Node.js Databases
 
-[![Version npm](https://img.shields.io/npm/v/sqlite-gui-node.svg?style=flat-square)](https://www.npmjs.com/package/@nik2208/sqlite-gui-node)
-[![npm Downloads](https://img.shields.io/npm/dm/sqlite-gui-node.svg?style=flat-square)](https://www.npmjs.com/package/@nik2208/sqlite-gui-node)
+[![Version npm](https://img.shields.io/npm/v/@nik22008/sqlite-gui-node.svg?style=flat-square)](https://www.npmjs.com/package/@nik2208/sqlite-gui-node)
+[![npm Downloads](https://img.shields.io/npm/dm/@nik2208/sqlite-gui-node.svg?style=flat-square)](https://www.npmjs.com/package/@nik2208/sqlite-gui-node)
 
 [![build status](https://github.com/nik2208/sqlite-gui-node/actions/workflows/publish.yml/badge.svg)](https://github.com/nik2208/sqlite-gui-node/actions/workflows/ci.yml)
 [![coverage status](https://coveralls.io/repos/github/nik2208/sqlite-gui-node/badge.svg?branch=main)](https://coveralls.io/github/nik2208/sqlite-gui-node?branch=main)
 
-[![NPM](https://nodei.co/npm/@nik2208/sqlite-gui-node.png?downloads=true&downloadRank=true)](https://nodei.co/npm/nik2208/sqlite-gui-node/)
+[![NPM](https://nodei.co/npm/@nik2208/sqlite-gui-node.png?downloads=true&downloadRank=true)](https://nodei.co/npm/@nik2208/sqlite-gui-node/)
 
 A modern, dark-themed web GUI for managing your Node.js databases — **SQLite, MySQL/MariaDB and PostgreSQL** — directly from the browser. Schema discovery is performed automatically via database reflection, so no manual configuration is required.
 
